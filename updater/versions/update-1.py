@@ -1,8 +1,2 @@
-def pre_install():
-    print("Starting update")
-
-def install():
+def run():
     print("Running update")
-
-def post_install():
-    print("Finishing update")
