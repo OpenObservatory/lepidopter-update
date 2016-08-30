@@ -17,7 +17,7 @@ except Exception:
     raise
 
 GH_BASE_URL = "https://api.github.com/repos/OpenObservatory/lepidopter-update"
-GPG_KEY_ID = "204F9D29"
+GPG_KEY_ID = "0xC3ECDC04204F9D29"
 
 def _get_latest_release_tag():
     params = {
@@ -156,7 +156,7 @@ def update(args):
         print("Update file does not exist. Will not update.")
         return
 
-    call(["gpg", "-u", GPG_KEY_ID, "-a", "-b", update_file])
+    call(["gpg", "--batch", "-u", GPG_KEY_ID, "-a", "-b", update_file])
 
     repo = git.Repo(CWD)
     repo.git.add("updater/versions/")

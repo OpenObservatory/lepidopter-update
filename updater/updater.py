@@ -66,12 +66,13 @@ def verify_file(signature_path, signer_pk_path):
 
     try:
         try:
-            check_call(["gpg", "--yes", "-o", tmp_key, "--dearmor", signer_pk_path])
+            check_call(["gpg", "--batch", "--yes", "-o", tmp_key,
+                        "--dearmor", signer_pk_path])
         except CalledProcessError:
             raise InvalidPublicKey
 
         try:
-            output = check_output(["gpg", "--status-fd", "1",
+            output = check_output(["gpg", "--batch", "--status-fd", "1",
                                    "--no-default-keyring", "--keyring",
                                    tmp_key, "--trust-model", "always",
                                    "--verify", signature_path])
