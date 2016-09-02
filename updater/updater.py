@@ -161,7 +161,7 @@ def verify_file(signature_path, signer_pk_path):
 class UpdateFailed(Exception):
     pass
 
-def perform_update(version):
+def perform_update(version, skip_verification=False):
     try:
         updater = get_request(UPDATE_BASE_URL + "{0}/update.py".format(version))
         updater_path = os.path.join(UPDATER_PATH, "update-{0}.py".format(version))
@@ -169,23 +169,27 @@ def perform_update(version):
         logging.error("Failed to download update file")
         raise UpdateFailed
 
-    try:
-        updater_sig = get_request(UPDATE_BASE_URL + "{0}/update.py.asc".format(version))
-        updater_sig_path = os.path.join(UPDATER_PATH, "update-{0}.py.asc".format(version))
-    except RequestFailed:
-        logging.error("Failed to download update file")
-        raise UpdateFailed
+    if skip_verification is not True:
+        try:
+            updater_sig = get_request(UPDATE_BASE_URL + "{0}/update.py.asc".format(version))
+            updater_sig_path = os.path.join(UPDATER_PATH, "update-{0}.py.asc".format(version))
+        except RequestFailed:
+            logging.error("Failed to download update file")
+            raise UpdateFailed
 
     with open(updater_path, "w+") as out_file:
         out_file.write(updater)
-    with open(updater_sig_path, "w+") as out_file:
-        out_file.write(updater_sig)
 
-    try:
-        verify_file(updater_sig_path, PUBLIC_KEY_PATH)
-    except InvalidSignature:
-        logging.error("Found an invalid signature. Bailing")
-        raise UpdateFailed
+    if skip_verification is not True:
+        with open(updater_sig_path, "w+") as out_file:
+            out_file.write(updater_sig)
+
+    if skip_verification is not True:
+        try:
+            verify_file(updater_sig_path, PUBLIC_KEY_PATH)
+        except InvalidSignature:
+            logging.error("Found an invalid signature. Bailing")
+            raise UpdateFailed
 
     updater = imp.load_source('updater_{0}'.format(version),
                               updater_path)
@@ -208,16 +212,16 @@ def perform_update(version):
     with open(CURRENT_VERSION_PATH, "w+") as out_file:
         out_file.write(str(version))
 
-def update_to_version(from_version, to_version):
+def update_to_version(from_version, to_version, skip_verification=False):
     versions = range(from_version + 1, to_version + 1)
     for version in versions:
         try:
-            perform_update(version)
+            perform_update(version, skip_verification)
         except UpdateFailed:
             logging.error("Failed to update to version {0}".format(version))
             return
 
-def check_for_update():
+def check_for_update(skip_verification=False):
     logging.info("Checking for update")
     current_version = get_current_version()
     try:
@@ -228,7 +232,7 @@ def check_for_update():
 
     if current_version < latest_version:
         logging.info("Updating {0}->{1}".format(current_version, latest_version))
-        update_to_version(current_version, latest_version)
+        update_to_version(current_version, latest_version, skip_verification)
     else:
         logging.info("Already up to date")
 
@@ -266,10 +270,10 @@ def update(args):
     if args.watch is True:
         seconds = _get_interval(args.interval)
         while True:
-            check_for_update()
+            check_for_update(skip_verification=args.skip_verification)
             time.sleep(seconds)
     else:
-        check_for_update()
+        check_for_update(skip_verification=args.skip_verification)
 
 
 def install(args):
@@ -326,6 +330,9 @@ def main():
                                action='store_true',
                                help="Keep watching for changes in version and automatically update when a new version is available")
     parser_update.add_argument('--interval', default='6h')
+    parser_update.add_argument('--skip-verification',
+                               action='store_true',
+                               help="Skip key verification (DANGER USE ONLY FOR TESTING))")
     parser_update.set_defaults(func=update)
 
     parser_install = sub_parsers.add_parser('install')
