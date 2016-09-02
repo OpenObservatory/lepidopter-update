@@ -291,6 +291,9 @@ def install(args):
             if ose.errno != errno.EEXIST:
                 raise
 
+    with open(CURRENT_VERSION_PATH, "w") as out_file:
+        out_file.write("0")
+
     # Copy myself over to the SCRIPT_INSTALL_PATH
     shutil.copyfile(__file__, SCRIPT_INSTALL_PATH)
     os.chmod(SCRIPT_INSTALL_PATH, int('744', 8))
