@@ -1,5 +1,4 @@
 import os
-import shutil
 import argparse
 from subprocess import call
 
@@ -100,7 +99,7 @@ def update_latest_version(tag_name):
     _delete_all_assets(release_id)
     _upload_asset(upload_url, "version", "text/plain", tag_name)
 
-def create_new_release(version):
+def create_new_release(version, skip_signing=False):
     params = {
         "access_token": GITHUB_TOKEN
     }
@@ -133,18 +132,22 @@ def create_new_release(version):
                   content_type=content_type,
                   data=data)
 
-    data = open(update_file_sig, "r").read()
-    _upload_asset(upload_url,
-                  name="update.py.asc",
-                  content_type=content_type,
-                  data=data)
+    if skip_signing is not True:
+        data = open(update_file_sig, "r").read()
+        _upload_asset(upload_url,
+                    name="update.py.asc",
+                    content_type=content_type,
+                    data=data)
 
     update_latest_version(str(version))
 
 def get_next_version():
     with open(os.path.join(CWD, "updater", "latest_version")) as in_file:
-        latest_version = in_file.read()
-    return int(latest_version) + 1
+        return int(in_file.read()) + 1
+
+def write_version(version):
+    with open(os.path.join(CWD, "updater", "latest_version"), "w") as out_file:
+        out_file.write(str(version))
 
 def update(args):
     version = get_next_version()
@@ -156,22 +159,28 @@ def update(args):
         print("Update file does not exist. Will not update.")
         return
 
-    call(["gpg", "-u", GPG_KEY_ID, "-a", "-b", update_file])
+    if args.skip_signing is not True:
+        call(["gpg", "-u", GPG_KEY_ID, "-a", "-b", update_file])
 
+    write_version(version)
     repo = git.Repo(CWD)
     repo.git.add("updater/versions/")
+    repo.git.add("updater/latest_version")
     if repo.is_dirty():
         repo.git.commit("-a", m="Automatic update to version {0}".format(version))
         print("Pushing changes to remote")
         repo.git.push("-u", "origin", "master")
         print("Creating a new release with version {0}".format(version))
-        create_new_release(str(version))
+        create_new_release(str(version), args.skip_signing)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Handle the workflow for lepidopter updater")
     subparsers = parser.add_subparsers()
 
     parser_update = subparsers.add_parser("update")
+    parser_update.add_argument('--skip-signing',
+                               action='store_true',
+                               help="Skip signing the version file (to be used for development)")
     parser_update.set_defaults(func=update)
 
     args = parser.parse_args()
