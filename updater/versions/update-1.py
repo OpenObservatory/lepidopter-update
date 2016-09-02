@@ -85,3 +85,6 @@ def run():
 
     # XXX don't understand why setup-ooniprobe.sh does this.
     check_call(["service", "tor", "stop"])
+
+if __name__ == "__main__":
+    run()
