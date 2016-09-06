@@ -16,7 +16,7 @@ except Exception:
     raise
 
 GH_BASE_URL = "https://api.github.com/repos/OpenObservatory/lepidopter-update"
-GPG_KEY_ID = "204F9D29"
+GPG_KEY_ID = "0xC3ECDC04204F9D29"
 
 def _get_latest_release_tag():
     params = {
@@ -160,7 +160,7 @@ def update(args):
         return
 
     if args.skip_signing is not True:
-        call(["gpg", "-u", GPG_KEY_ID, "-a", "-b", update_file])
+        call(["gpg", "--batch", "-u", GPG_KEY_ID, "-a", "-b", update_file])
 
     write_version(version)
     repo = git.Repo(CWD)
