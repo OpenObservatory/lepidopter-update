@@ -23,10 +23,10 @@ CURRENT_VERSION_PATH = "/etc/lepidopter-update/version"
 UPDATER_PATH = "/opt/ooni/updater/versions/"
 SCRIPT_INSTALL_PATH = "/opt/ooni/updater/updater.py"
 
-SYSTEMD_SCRIPT_PATH = "/etc/systemd/system/lepidopter-updater.service"
+SYSTEMD_SCRIPT_PATH = "/etc/systemd/system/lepidopter-update.service"
 SYSTEMD_SCRIPT = """\
 [Unit]
-Description=lepidopter-updater service
+Description=lepidopter-update service
 
 [Service]
 Type=simple
