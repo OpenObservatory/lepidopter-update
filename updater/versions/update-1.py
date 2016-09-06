@@ -16,10 +16,6 @@ import shutil
 
 from subprocess import check_call
 
-DEB_RELEASE="jessie"
-TOR_DEB_REPO="http://deb.torproject.org/torproject.org"
-TOR_DEB_REPO_SRC_LIST="/etc/apt/sources.list.d/tor.list"
-TOR_REPO_GPG="A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89"
 OONIPROBE_PIP_URL = "https://people.torproject.org/~art/ooni/ooniprobe-2.0.0a3.tar.gz"
 
 OONIPROBE_SYSTEMD_SCRIPT = """\
@@ -47,6 +43,9 @@ basic:
 advanced:
    webui_port: 8842
    webui_address: "0.0.0.0"
+tor:
+    data_dir: /opt/ooni/tor_data_dir
+    timeout: 200
 """
 OONIPROBE_CONFIG_PATH = "/etc/ooniprobe.conf"
 
@@ -72,13 +71,22 @@ def run():
     rm_rf("/etc/cron.daily/remove_upl_reports")
     rm_rf("/etc/cron.daily/run_ooniprobe_deck")
     rm_rf("/etc/cron.daily/upload_reports")
-    rm_rf("/etc/cron.daily/remove_inc_reports")
-    rm_rf("/etc/cron.daily/update_ooniprobe_deck")
+
+    # Delete all the weekly crons
+    rm_rf("/etc/cron.weekly/remove_inc_reports")
+    rm_rf("/etc/cron.weekly/update_ooniprobe_deck")
+
+    # Remove unneeded cronjobs
+    rm_rf("/etc/cron.daily/apt")
+    rm_rf("/etc/cron.daily/dpkg")
+    rm_rf("/etc/cron.daily/man-db")
+    rm_rf("/etc/cron.daily/tor")
 
     # XXX this is still present in the lepidopter v2 branch.
     rm_rf("/etc/cron.daily/update_ooniprobe")
 
-    rm_rf("/etc/ooniprobe")
+    rm_rf("/etc/ooniprobe/oonireport.conf")
+    rm_rf("/etc/ooniprobe/ooniprobe.conf")
 
     rm_rf("/opt/ooni/remove-inc-reports.sh")
     rm_rf("/opt/ooni/remove-upl-reports.sh")
@@ -89,23 +97,12 @@ def run():
     # XXX this is still present in the lepidopter v2 branch.
     rm_rf("/opt/ooni/update-ooniprobe.sh")
 
-    # XXX it's probably redundant to run this on the first version since these
-    # are probably all satisfied, but let's just be careful.
-    check_call(("apt-get -y install openssl libssl-dev libyaml-dev "
-               "libffi-dev libpcap-dev tor libgeoip-dev libdumbnet-dev "
-               "python-dev python-pip libgmp-dev").split(" "))
-    # Add Torproject Debian repository
-    check_call(("apt-key adv --keyserver hkp://pool.sks-keyservers.net "
-                "--recv-keys {0}".format(TOR_REPO_GPG)).split(" "))
-    with open(TOR_DEB_REPO_SRC_LIST, "w") as out_file:
-        out_file.write("deb {0} {1} main".format(TOR_DEB_REPO, DEB_RELEASE))
-    check_call(["apt-get", "update"])
+    # Do not access hwclock Raspberry Pi doesn't have one, use fake-hwclock
+    check_call("apt-get -y install fake-hwclock" )
 
     write_systemd_script()
     write_ooniprobe_config()
 
-    # Install obfs4proxy that includes a lite version of meek
-    check_call(["apt-get", "-y", "install", "-t", "stretch", "obfs4proxy"])
 
     check_call(["pip", "install", "--upgrade", OONIPROBE_PIP_URL])
 
@@ -116,9 +113,6 @@ def run():
 
     check_call(["systemctl", "enable", "ooniprobe"])
     check_call(["systemctl", "start", "ooniprobe"])
-
-    # XXX don't understand why setup-ooniprobe.sh does this.
-    check_call(["service", "tor", "stop"])
 
 if __name__ == "__main__":
     run()
