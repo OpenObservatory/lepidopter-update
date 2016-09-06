@@ -49,6 +49,74 @@ tor:
 """
 OONIPROBE_CONFIG_PATH = "/etc/ooniprobe.conf"
 
+DEFAULT_RCS = """\
+#
+# /etc/default/rcS
+#
+# Default settings for the scripts in /etc/rcS.d/
+#
+# For information about these variables see the rcS(5) manual page.
+#
+# This file belongs to the "initscripts" package.
+
+# delete files in /tmp during boot older than x days.
+# '0' means always, -1 or 'infinite' disables the feature
+#TMPTIME=0
+
+# spawn sulogin during boot, continue normal boot if not used in 30 seconds
+#SULOGIN=no
+
+# do not allow users to log in until the boot has completed
+#DELAYLOGIN=no
+
+# be more verbose during the boot process
+#VERBOSE=no
+
+# automatically repair filesystems with inconsistencies during boot
+FSCKFIX=yes
+"""
+DEFAULT_RCS_PATH = "/etc/default/rcS"
+
+DEFAULT_HWCLOCK = """\
+# Defaults for the hwclock init script.  See hwclock(5) and hwclock(8).
+
+# This is used to specify that the hardware clock incapable of storing
+# years outside the range of 1994-1999.  Set to yes if the hardware is
+# broken or no if working correctly.
+#BADYEAR=no
+
+# Set this to yes if it is possible to access the hardware clock,
+# or no if it is not.
+HWCLOCKACCESS=no
+
+# Set this to any options you might need to give to hwclock, such
+# as machine hardware clock type for Alphas.
+#HWCLOCKPARS=
+
+# Set this to the hardware clock device you want to use, it should
+# probably match the CONFIG_RTC_HCTOSYS_DEVICE kernel config option.
+#HCTOSYS_DEVICE=rtc0
+"""
+DEFAULT_HWCLOCK_PATH = "/etc/default/hwclock"
+
+CRONTAB = """\
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user	command
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+17 4	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+"""
+CRONTAB_PATH = "/etc/crontab"
+
 def rm_rf(path):
     if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True)
@@ -65,6 +133,19 @@ def write_systemd_script():
 def write_ooniprobe_config():
     with open(OONIPROBE_CONFIG_PATH, "w") as out_file:
         out_file.write(OONIPROBE_CONFIG)
+
+def write_default_rcs():
+    with open(DEFAULT_RCS_PATH, "w") as out_file:
+        out_file.write(DEFAULT_RCS)
+
+def write_default_hwclock():
+    with open(DEFAULT_HWCLOCK_PATH, "w") as out_file:
+        out_file.write(DEFAULT_HWCLOCK)
+
+def write_crontab():
+    with open(CRONTAB_PATH, "w") as out_file:
+        out_file.write(CRONTAB)
+
 
 def run():
     # Delete all the daily crons
@@ -97,12 +178,18 @@ def run():
     # XXX this is still present in the lepidopter v2 branch.
     rm_rf("/opt/ooni/update-ooniprobe.sh")
 
+    check_call("apt-get update" )
     # Do not access hwclock Raspberry Pi doesn't have one, use fake-hwclock
     check_call("apt-get -y install fake-hwclock" )
+
+    write_default_rcs()
+    write_default_hwclock()
+    write_crontab()
 
     write_systemd_script()
     write_ooniprobe_config()
 
+    shutil.copyfile("/usr/share/zoneinfo/UTC", "/etc/localtime")
 
     check_call(["pip", "install", "--upgrade", OONIPROBE_PIP_URL])
 
