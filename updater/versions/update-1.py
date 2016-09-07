@@ -222,7 +222,7 @@ def run():
 
     rm_rf("/opt/ooni/update-ooniprobe.sh")
 
-    check_call("apt-get update" )
+    check_call(["apt-get", "update"])
     # Do not access hwclock Raspberry Pi doesn't have one, use fake-hwclock
     # Add Avahi mDNS/DNS-SD daemon
     # Add wireless network interface specific package dependencies
