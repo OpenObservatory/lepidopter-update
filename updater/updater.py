@@ -200,7 +200,7 @@ def perform_update(version, skip_verification=False):
         logging.info("Running install script")
         updater.run()
     except Exception:
-        logging.error("Failed to run the version update script for version {0}".format(version))
+        logging.exception("Failed to run the version update script for version {0}".format(version))
         raise UpdateFailed
 
     current_version_dir = os.path.dirname(CURRENT_VERSION_PATH)
