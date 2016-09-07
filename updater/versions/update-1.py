@@ -117,6 +117,43 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 """
 CRONTAB_PATH = "/etc/crontab"
 
+AVAHI_OONIPROBE = """\
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">ooniprobe GUI on %h</name>
+  <service>
+     <type>_http._tcp</type>
+     <port>8842</port>
+  </service>
+</service-group>
+"""
+AVAHI_OONIPROBE_PATH = "/etc/avahi/services/ooniprobe.service"
+
+AVAHI_SSH = """\
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">SSH on %h</name>
+  <service>
+     <type>_ssh._tcp</type>
+     <port>22</port>
+  </service>
+</service-group>
+"""
+AVAHI_SSH_PATH = "/etc/avahi/services/ssh.service"
+
+LEPIDOPTER_UPDATE_LOGROTATE = """\
+/var/log/ooni/lepidopter-update.log {
+    missingok
+    rotate 2
+    copytruncate
+    maxsize 1M
+    notifempty
+}
+"""
+LEPIDOPTER_UPDATE_LOGROTATE_PATH = "/etc/logrotate.d/lepidopter-update"
+
 def rm_rf(path):
     if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True)
@@ -146,6 +183,17 @@ def write_crontab():
     with open(CRONTAB_PATH, "w") as out_file:
         out_file.write(CRONTAB)
 
+def write_avahi_ooniprobe():
+    with open(AVAHI_OONIPROBE_PATH, "w") as out_file:
+        out_file.write(AVAHI_OONIPROBE)
+
+def write_avahi_ssh():
+    with open(AVAHI_SSH_PATH, "w") as out_file:
+        out_file.write(AVAHI_SSH)
+
+def write_lepidopter_update_logrotate():
+    with open(LEPIDOPTER_UPDATE_LOGROTATE_PATH, "w") as out_file:
+        out_file.write(LEPIDOPTER_UPDATE_LOGROTATE)
 
 def run():
     # Delete all the daily crons
@@ -180,7 +228,10 @@ def run():
 
     check_call("apt-get update" )
     # Do not access hwclock Raspberry Pi doesn't have one, use fake-hwclock
-    check_call("apt-get -y install fake-hwclock" )
+    # Add Avahi mDNS/DNS-SD daemon
+    # Add wireless network interface specific package dependencies
+    check_call(("apt-get -y install fake-hwclock avahi-daemon wireless-tools "
+               "wpasupplicant wireless-regdb crda").split(" "))
 
     write_default_rcs()
     write_default_hwclock()
