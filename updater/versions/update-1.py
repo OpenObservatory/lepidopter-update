@@ -212,7 +212,9 @@ def run():
     rm_rf("/etc/cron.daily/tor")
     rm_rf("/etc/cron.daily/update_ooniprobe")
 
-    rm_rf("/etc/ooniprobe/")
+    rm_rf("/etc/ooniprobe/ooniprobe.conf")
+    rm_rf("/etc/ooniprobe/oonireport.conf")
+    rm_rf("/etc/ooniprobe/oonideckconfig")
 
     rm_rf("/opt/ooni/remove-inc-reports.sh")
     rm_rf("/opt/ooni/remove-upl-reports.sh")
