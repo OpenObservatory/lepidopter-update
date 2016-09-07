@@ -238,7 +238,12 @@ def run():
     write_crontab()
 
     write_systemd_script()
+    write_lepidopter_update_logrotate()
+
     write_ooniprobe_config()
+
+    write_avahi_ooniprobe()
+    write_avahi_ssh()
 
     shutil.copyfile("/usr/share/zoneinfo/UTC", "/etc/localtime")
 
