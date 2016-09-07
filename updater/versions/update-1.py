@@ -210,12 +210,9 @@ def run():
     rm_rf("/etc/cron.daily/dpkg")
     rm_rf("/etc/cron.daily/man-db")
     rm_rf("/etc/cron.daily/tor")
-
-    # XXX this is still present in the lepidopter v2 branch.
     rm_rf("/etc/cron.daily/update_ooniprobe")
 
-    rm_rf("/etc/ooniprobe/oonireport.conf")
-    rm_rf("/etc/ooniprobe/ooniprobe.conf")
+    rm_rf("/etc/ooniprobe/")
 
     rm_rf("/opt/ooni/remove-inc-reports.sh")
     rm_rf("/opt/ooni/remove-upl-reports.sh")
@@ -223,7 +220,6 @@ def run():
     rm_rf("/opt/ooni/update-deck.sh")
     rm_rf("/opt/ooni/upload-reports.sh")
 
-    # XXX this is still present in the lepidopter v2 branch.
     rm_rf("/opt/ooni/update-ooniprobe.sh")
 
     check_call("apt-get update" )
