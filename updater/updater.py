@@ -20,8 +20,8 @@ from subprocess import check_output, check_call, CalledProcessError
 UPDATE_BASE_URL = "https://github.com/OpenObservatory/lepidopter-update/releases/download/"
 
 CURRENT_VERSION_PATH = "/etc/lepidopter-update/version"
-UPDATER_PATH = "/opt/ooni/lepidopter-update/updater/versions/"
-SCRIPT_INSTALL_PATH = "/opt/ooni/lepidopter-update/updater/updater.py"
+UPDATER_PATH = "/opt/ooni/lepidopter-update/versions/"
+SCRIPT_INSTALL_PATH = "/opt/ooni/lepidopter-update/updater.py"
 
 SYSTEMD_SCRIPT_PATH = "/etc/systemd/system/lepidopter-update.service"
 SYSTEMD_SCRIPT = """\
@@ -30,7 +30,7 @@ Description=lepidopter-update service
 
 [Service]
 Type=simple
-Environment="UPDATER=/opt/ooni/lepidopter-update/updater/updater.py"
+Environment="UPDATER={0}"
 ExecStart=$UPDATER --log-file /var/log/ooni/lepidopter-update.log update --watch
 TimeoutStartSec=300
 Restart=on-failure
@@ -39,7 +39,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 """.format(SCRIPT_INSTALL_PATH)
 
-PUBLIC_KEY_PATH = "/opt/ooni/lepidopter-update/updater/public.asc"
+PUBLIC_KEY_PATH = "/opt/ooni/lepidopter-update/public.asc"
 PUBLIC_KEY = """\
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: GPGTools - https://gpgtools.org
