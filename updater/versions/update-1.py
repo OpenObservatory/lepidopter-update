@@ -13,8 +13,11 @@ should not happen in future versions of lepidopter.
 
 import os
 import shutil
+import logging
 
 from subprocess import check_call
+
+__version__ = "1"
 
 OONIPROBE_PIP_URL = "https://people.torproject.org/~art/ooni/ooniprobe-2.0.0rc1.tar.gz"
 
@@ -195,7 +198,7 @@ def write_lepidopter_update_logrotate():
     with open(LEPIDOPTER_UPDATE_LOGROTATE_PATH, "w") as out_file:
         out_file.write(LEPIDOPTER_UPDATE_LOGROTATE)
 
-def run():
+def _perform_update():
     # Delete all the daily crons
     rm_rf("/etc/cron.daily/remove_upl_reports")
     rm_rf("/etc/cron.daily/run_ooniprobe_deck")
@@ -252,6 +255,12 @@ def run():
 
     check_call(["systemctl", "enable", "ooniprobe"])
     check_call(["systemctl", "start", "ooniprobe"])
+
+def run():
+    try:
+        _perform_update()
+    except Exception as exc:
+        logging.exception(exc)
 
 if __name__ == "__main__":
     run()
