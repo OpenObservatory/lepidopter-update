@@ -14,3 +14,5 @@ If the current version is < the latest version, we will download all the update
 scripts up until the latest and execute them in order to ensure a consistent
 update.
 
+**Note**: The version file must not be terminated by a newline.
+
