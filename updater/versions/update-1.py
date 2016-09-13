@@ -48,7 +48,6 @@ advanced:
    webui_address: "0.0.0.0"
 tor:
     data_dir: /opt/ooni/tor_data_dir
-    timeout: 200
 """
 OONIPROBE_CONFIG_PATH = "/etc/ooniprobe.conf"
 
