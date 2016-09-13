@@ -19,7 +19,7 @@ from subprocess import check_call
 
 __version__ = "1"
 
-OONIPROBE_PIP_URL = "https://people.torproject.org/~art/ooni/ooniprobe-2.0.0rc1.tar.gz"
+OONIPROBE_PIP_URL = "https://github.com/TheTorProject/ooni-probe/releases/download/v2.0.0-rc.2/ooniprobe-2.0.0rc2.tar.gz"
 
 OONIPROBE_SYSTEMD_SCRIPT = """\
 [Unit]
