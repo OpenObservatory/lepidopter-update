@@ -20,6 +20,7 @@ def run():
         _perform_update()
     except Exception as exc:
         logging.exception(exc)
+        raise
     finally:
         check_call(["systemctl", "start", "ooniprobe"])
 
