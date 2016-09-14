@@ -44,7 +44,7 @@ OONIPROBE_CONFIG = """
 basic:
    logfile: /var/log/ooni/ooniprobe.log
 advanced:
-   webui_port: 8842
+   webui_port: 80
    webui_address: "0.0.0.0"
 tor:
     data_dir: /opt/ooni/tor_data_dir
@@ -126,7 +126,7 @@ AVAHI_OONIPROBE = """\
   <name replace-wildcards="yes">ooniprobe GUI on %h</name>
   <service>
      <type>_http._tcp</type>
-     <port>8842</port>
+     <port>80</port>
   </service>
 </service-group>
 """
