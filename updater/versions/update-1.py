@@ -156,6 +156,19 @@ LEPIDOPTER_UPDATE_LOGROTATE = """\
 """
 LEPIDOPTER_UPDATE_LOGROTATE_PATH = "/etc/logrotate.d/lepidopter-update"
 
+OONIPROBE_CRONJOBS_LOGROTATE = """\
+/var/log/ooni/cronjobs.log {
+    missingok
+    rotate 1
+    compress
+    delaycompress
+    copytruncate
+    maxsize 1M
+    notifempty
+}
+"""
+OONIPROBE_CRONJOBS_LOGROTATE  = "/etc/logrotate.d/ooniprobe"
+
 def rm_rf(path):
     if os.path.isdir(path):
         shutil.rmtree(path, ignore_errors=True)
@@ -197,6 +210,10 @@ def write_lepidopter_update_logrotate():
     with open(LEPIDOPTER_UPDATE_LOGROTATE_PATH, "w") as out_file:
         out_file.write(LEPIDOPTER_UPDATE_LOGROTATE)
 
+def write_lepidopter_update_logrotate():
+    with open(OONIPROBE_CRONJOBS_LOGROTATE , "w") as out_file:
+        out_file.write(OONIPROBE_CRONJOBS_LOGROTATE )
+
 def _perform_update():
     # Delete all the daily crons
     rm_rf("/etc/cron.daily/remove_upl_reports")
@@ -225,6 +242,12 @@ def _perform_update():
     rm_rf("/opt/ooni/upload-reports.sh")
 
     rm_rf("/opt/ooni/update-ooniprobe.sh")
+
+    # Remove unused folders
+    # New PATH: /var/lib/ooni/decks-enabled
+    rm_rf("/opt/ooni/decks")
+    # New PATH: /var/lib/ooni/measurements
+    rm_rf("/opt/ooni/reports")
 
     check_call(["apt-get", "update"])
     # Do not access hwclock Raspberry Pi doesn't have one, use fake-hwclock
