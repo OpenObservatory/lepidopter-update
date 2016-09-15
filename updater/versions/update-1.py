@@ -44,7 +44,7 @@ OONIPROBE_CONFIG = """
 basic:
    logfile: /var/log/ooni/ooniprobe.log
 advanced:
-   webui_port: 8842
+   webui_port: 80
    webui_address: "0.0.0.0"
 tor:
     data_dir: /opt/ooni/tor_data_dir
@@ -126,7 +126,7 @@ AVAHI_OONIPROBE = """\
   <name replace-wildcards="yes">ooniprobe GUI on %h</name>
   <service>
      <type>_http._tcp</type>
-     <port>8842</port>
+     <port>80</port>
   </service>
 </service-group>
 """
@@ -155,6 +155,19 @@ LEPIDOPTER_UPDATE_LOGROTATE = """\
 }
 """
 LEPIDOPTER_UPDATE_LOGROTATE_PATH = "/etc/logrotate.d/lepidopter-update"
+
+OONIPROBE_CRONJOBS_LOGROTATE = """\
+/var/log/ooni/cronjobs.log {
+    missingok
+    rotate 1
+    compress
+    delaycompress
+    copytruncate
+    maxsize 1M
+    notifempty
+}
+"""
+OONIPROBE_CRONJOBS_LOGROTATE  = "/etc/logrotate.d/ooniprobe"
 
 def rm_rf(path):
     if os.path.isdir(path):
@@ -197,6 +210,10 @@ def write_lepidopter_update_logrotate():
     with open(LEPIDOPTER_UPDATE_LOGROTATE_PATH, "w") as out_file:
         out_file.write(LEPIDOPTER_UPDATE_LOGROTATE)
 
+def write_cronjobs_logrotate():
+    with open(OONIPROBE_CRONJOBS_LOGROTATE , "w") as out_file:
+        out_file.write(OONIPROBE_CRONJOBS_LOGROTATE )
+
 def _perform_update():
     # Delete all the daily crons
     rm_rf("/etc/cron.daily/remove_upl_reports")
@@ -226,6 +243,12 @@ def _perform_update():
 
     rm_rf("/opt/ooni/update-ooniprobe.sh")
 
+    # Remove unused folders
+    # New PATH: /var/lib/ooni/decks-enabled
+    rm_rf("/opt/ooni/decks")
+    # New PATH: /var/lib/ooni/measurements
+    rm_rf("/opt/ooni/reports")
+
     check_call(["apt-get", "update"])
     # Do not access hwclock Raspberry Pi doesn't have one, use fake-hwclock
     # Add Avahi mDNS/DNS-SD daemon
@@ -238,7 +261,9 @@ def _perform_update():
     write_crontab()
 
     write_systemd_script()
+
     write_lepidopter_update_logrotate()
+    write_cronjobs_logrotate()
 
     write_ooniprobe_config()
 
