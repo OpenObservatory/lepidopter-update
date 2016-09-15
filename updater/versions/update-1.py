@@ -249,6 +249,9 @@ def _perform_update():
     # New PATH: /var/lib/ooni/measurements
     rm_rf("/opt/ooni/reports")
 
+    # Remove if.up.d deck generation script
+    rm_rf("/etc/network/if-up.d/run_oonideckgen")
+
     check_call(["apt-get", "update"])
     # Do not access hwclock Raspberry Pi doesn't have one, use fake-hwclock
     # Add Avahi mDNS/DNS-SD daemon
