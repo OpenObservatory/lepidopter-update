@@ -210,7 +210,7 @@ def write_lepidopter_update_logrotate():
     with open(LEPIDOPTER_UPDATE_LOGROTATE_PATH, "w") as out_file:
         out_file.write(LEPIDOPTER_UPDATE_LOGROTATE)
 
-def write_lepidopter_update_logrotate():
+def write_cronjobs_logrotate():
     with open(OONIPROBE_CRONJOBS_LOGROTATE , "w") as out_file:
         out_file.write(OONIPROBE_CRONJOBS_LOGROTATE )
 
@@ -261,7 +261,9 @@ def _perform_update():
     write_crontab()
 
     write_systemd_script()
+
     write_lepidopter_update_logrotate()
+    write_cronjobs_logrotate()
 
     write_ooniprobe_config()
 
