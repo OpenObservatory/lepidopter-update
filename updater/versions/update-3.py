@@ -9,8 +9,7 @@ from subprocess import check_call
 
 __version__ = "3"
 
-# XXX replace this with ooniprobe when this is built
-OONIPROBE_PIP_URL = "https://people.torproject.org/~art/ooni/ooniprobe-2.0.0rc4.tar.gz"
+OONIPROBE_PIP_URL = "ooniprobe==2.0.0"
 
 FILES_TO_DELETE = [
     '/usr/share/ooni/decks-available/web-full.yaml',
