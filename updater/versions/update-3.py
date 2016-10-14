@@ -50,8 +50,14 @@ def _perform_update():
         DECKS_TO_ENABLE.remove('http-invalid.yaml')
 
     for deck_name in DECKS_TO_ENABLE:
-        os.symlink(os.path.join(DECKS_ENABLED_DIR, deck_name),
-                   os.path.join(DECKS_AVAILABLE_DIR, deck_name))
+        enabled_path = os.path.join(DECKS_ENABLED_DIR, deck_name)
+        if os.path.exists(enabled_path):
+            # Skip when the symlink already exists
+            continue
+        os.symlink(
+            os.path.join(DECKS_AVAILABLE_DIR, deck_name),
+            enabled_path
+        )
 
     check_call(["pip", "install", "--upgrade", OONIPROBE_PIP_URL])
 
