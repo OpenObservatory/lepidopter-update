@@ -1,0 +1,18 @@
+---
+- name: ensure required packages installed
+  apt: name={{ item  }} state=present
+  with_items:
+    - git
+    - python-pip
+    - sudo
+
+- name: clone lepidopter repository
+  git: repo=https://github.com/TheTorProject/lepidopter.git
+       dest=/opt/lepidopter
+       version=v0.2.1-alpha
+
+- name: run setup script for lepidopter
+  script: lepidopter-install.sh
+
+- name: run ooniprobe update to trigger running the updater to the latest version
+  command: sh /opt/ooni/update-ooniprobe.sh

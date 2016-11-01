@@ -1,0 +1,44 @@
+- name: ensure that a single instance is launched
+  hosts: localhost
+  gather_facts: no
+  vars:
+    instance_name: 'lepidopter-update-test'
+    instance_region: 'ams1'
+    api_baseurl: "https://portal.eclips.is/portal/api/v2"
+    ssh_key_id: 77
+  tasks:
+  - name: ensure instance is created
+    eclipsis_droplet:
+      state: present
+      api_baseurl: "{{ api_baseurl }}"
+      name: "{{ instance_name }}"
+      region: "{{ instance_region }}"
+      size: 512
+      disk: 10
+      ssh_key_id: "{{ ssh_key_id }}"
+      # This stands for jessie-x64
+      image_id: 6
+      unique_name: "yes"
+    register: instance_info
+
+  - debug:
+      msg: "Instance info {{ instance_info }}"
+
+  - name: add instance to in-memory hosts
+    add_host:
+      hostname: "{{ instance_info.droplet.networks.v4[0].ip_address }}"
+      groupname: eclipsis_hosts
+
+  - name: wait for it to listen on port 22
+    wait_for:
+      state: started
+      host: "{{ instance_info.droplet.networks.v4[0].ip_address }}"
+      port: 22
+
+- name: ensure that the base updater is setup on the machine
+  hosts: eclipsis_hosts
+  remote_user: root
+  gather_facts: no
+  roles:
+  - common
+  - lepidopter_v0.2.1

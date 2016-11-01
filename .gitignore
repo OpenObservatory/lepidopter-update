@@ -1,2 +1,4 @@
 GITHUB_TOKEN
 *.pyc
+*.retry
+inventory

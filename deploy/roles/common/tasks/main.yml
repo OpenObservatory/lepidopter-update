@@ -1,0 +1,4 @@
+- name: update the apt cache
+  raw: apt-get update
+- name: bootstrap the system by installing python and python-simplejson
+  raw: apt-get install -y python python-simplejson
