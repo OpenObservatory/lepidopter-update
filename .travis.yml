@@ -1,10 +1,11 @@
+sudo: required
+services:
+  - docker
 language: python
 python:
   - "2.7"
 before_install:
-  - sudo apt-get update
-install:
-  - sudo make setupintegration
+  - docker build -t lepidopter/integration tests/integration
 script:
-  - sudo make integrationtest
   - make unittest
+  - docker run lepidopter/integration

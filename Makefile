@@ -1,12 +1,6 @@
 all:
 	echo "nothing"
 
-setupintegration:
-	sh tests/integration/setup.sh
-
-integrationtest:
-	python tests/integration/test_*.py
-
 unittest:
 	python updater/test_*.py
 
