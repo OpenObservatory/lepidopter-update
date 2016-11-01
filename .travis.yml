@@ -1,0 +1,8 @@
+language: python
+before_install:
+- sudo apt-get update
+- sudo apt-get install -y gpg
+install:
+- sudo sh tests/integration/setup.sh
+- python update/test_*.py
+- sudo python tests/integration/test_*.py
