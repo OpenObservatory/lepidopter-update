@@ -2,7 +2,9 @@ import os
 import re
 import imp
 import time
+import signal
 import operator
+import subprocess
 import multiprocessing
 
 import unittest
@@ -17,6 +19,14 @@ UPDATERS_DIR = os.path.abspath(
 )
 
 UPDATER_FILE_REGEXP = re.compile(r"^update-(\d).py$")
+
+def kill_children(pid, sig=signal.SIGTERM):
+    p = subprocess.Popen("ps -o pid --ppid %d --noheaders" % pid,
+                         shell=True, stdout=subprocess.PIPE)
+    output = p.stdout.read()
+    p.wait()
+    for child_pid in output.split("\n")[:-1]:
+        os.kill(int(child_pid), sig)
 
 class TestUpdaters(unittest.TestCase):
     def setUp(self):
@@ -51,7 +61,7 @@ class TestUpdaters(unittest.TestCase):
                              'Mismatch in __version__ variable of for updater-%s.py' % updater['version'])
             # Ensure versions always increase by one
             self.assertEqual(last_version + 1, updater['version'],
-                             'Missing version %s' % last_version + 1)
+                             'Missing version %s' % (last_version + 1))
             last_version = updater['version']
 
     def updaters_can_be_partial(self, updaters):
@@ -59,6 +69,7 @@ class TestUpdaters(unittest.TestCase):
             p = multiprocessing.Process(target=updater['module'].run)
             p.start()
             time.sleep(0.5)
+            kill_children(p.pid)
             p.terminate()
 
             p = multiprocessing.Process(target=updater['module'].run)

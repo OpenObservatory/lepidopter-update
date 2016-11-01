@@ -1,8 +1,10 @@
 language: python
+python:
+  - "2.7"
 before_install:
-- sudo apt-get update
-- sudo apt-get install -y gpg
+  - sudo apt-get update
 install:
-- sudo sh tests/integration/setup.sh
-- python update/test_*.py
-- sudo python tests/integration/test_*.py
+  - sudo make setupintegration
+script:
+  - sudo make integrationtest
+  - make unittest

@@ -9,6 +9,7 @@ class TestSecurity(unittest.TestCase):
     def test_verify_file(self):
         o = verify_file(
             os.path.join(CWD, "versions", "update-1.py.asc"),
+            os.path.join(CWD, "versions", "update-1.py"),
             os.path.join(CWD, "public.asc")
         )
         print o
