@@ -1,5 +1,6 @@
 FROM debian:jessie
 ARG lepidopter_tag="v0.2.1-alpha"
+ARG lepidopter_update_tag="master"
 
 RUN apt-get update && apt-get install -y \
                     git \
@@ -11,9 +12,7 @@ RUN git clone -b $lepidopter_tag https://github.com/TheTorProject/lepidopter.git
 RUN mkdir -p /integration
 WORKDIR /integration
 
-COPY lepidopter-install-${lepidopter_tag}.sh /integration
-RUN /integration/lepidopter-install-${lepidopter_tag}.sh
+RUN git clone -b $lepidopter_update_tag https://github.com/OpenObservatory/lepidopter-update.git /integration/lepidopter-update
+RUN lepidopter-update/tests/integration/lepidopter-install-${lepidopter_tag}.sh
 
-COPY main.py /integration/
-
-CMD [ "python", "main.py" ]
+CMD [ "python", "lepidopter-update/tests/integration/main.py" ]
