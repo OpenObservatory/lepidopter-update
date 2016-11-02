@@ -13,7 +13,6 @@ WORKDIR /integration
 
 COPY lepidopter-install-${lepidopter_tag}.sh /integration
 RUN /integration/lepidopter-install-${lepidopter_tag}.sh
-RUN service lepidopter-updater stop
 
 COPY main.py /integration/
 
