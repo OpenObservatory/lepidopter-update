@@ -69,6 +69,8 @@ mkdir -p /var/log/ooni/
 rsync -avp $LEPIDOPTER_REPO_PATH/lepidopter-fh/ /
 
 # Install the version of ooniprobe in alpha
+apt-get -y install openssl libssl-dev libyaml-dev libffi-dev libpcap-dev tor \
+        libgeoip-dev libdumbnet-dev python-dev python-pip libgmp-dev
 pip install ooniprobe=="1.4.1"
 
 # Install ooniprobe via setup script
