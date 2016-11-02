@@ -68,6 +68,9 @@ mkdir -p /var/log/ooni/
 # Rsync Directory/file hieratchy to image
 rsync -avp $LEPIDOPTER_REPO_PATH/lepidopter-fh/ /
 
+# Install the version of ooniprobe in alpha
+pip install ooniprobe=="1.4.1"
+
 # Install ooniprobe via setup script
 /setup-ooniprobe.sh
 rm /setup-ooniprobe.sh
