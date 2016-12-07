@@ -2,10 +2,7 @@
 This is the auto update script for going from version 5 to version 6.
 """
 
-import os
 import logging
-
-from datetime import datetime, timedelta
 
 from subprocess import check_call
 
