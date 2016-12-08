@@ -1,0 +1,15 @@
+- name: ensure that the instance does not exist
+  hosts: localhost
+  gather_facts: no
+  vars:
+    instance_name: 'lepidopter-update-test'
+    instance_region: 'ams1'
+    ssh_key_id: 77
+  tasks:
+  - name: ensure instance doesn't exist
+    eclipsis_droplet:
+      state: absent
+      name: "{{ instance_name }}"
+      unique_name: "yes"
+      wait_timeout: 10
+    register: instance_info
