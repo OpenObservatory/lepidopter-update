@@ -190,8 +190,8 @@ def update(args, version=None, force=False):
 
 def rewrite(args):
     next_version = get_next_version()
-    for version in range(next_version-1):
-        print("Force updating {0}".format(version+1))
+    for version in range(1, next_version):
+        print("Force updating {0}".format(version))
         update(args, version=version, force=True)
 
 def parse_args():
