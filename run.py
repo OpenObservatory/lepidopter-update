@@ -114,6 +114,7 @@ def create_new_release(version, skip_signing=False, skip_update=False):
         "prerelease": False
     }
     if skip_update is False:
+        print("Creating a new release with version {0}".format(version))
         r = requests.post(GH_BASE_URL + "/releases",
                 params=params, json=data)
         try:
@@ -122,8 +123,8 @@ def create_new_release(version, skip_signing=False, skip_update=False):
             print r.text
             return
     else:
-        r = requests.post(GH_BASE_URL + "/releases/tags/" + str(version),
-                params=params, json=data)
+        r = requests.get(GH_BASE_URL + "/releases/tags/" + str(version),
+                         params=params)
         print(r.json())
         assert r.status_code == 200
 
@@ -183,7 +184,6 @@ def update(args, version=None, force=False):
         repo.git.commit("-a", m=commit_message)
         print("Pushing changes to remote")
         repo.git.push("-u", "origin", "master")
-        print("Creating a new release with version {0}".format(version))
         create_new_release(str(version),
                            skip_signing=args.skip_signing,
                            skip_update=force)
