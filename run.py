@@ -124,10 +124,10 @@ def create_new_release(version, skip_signing=False, skip_update=False):
     else:
         r = requests.post(GH_BASE_URL + "/releases/tags/" + str(version),
                 params=params, json=data)
+        print(j)
         assert r.status_code == 200
 
     j = r.json()
-    print(j)
     upload_url = j["upload_url"].replace("{?name,label}", "")
     update_file = "updater/versions/update-{0}.py".format(version)
     update_file_sig = "updater/versions/update-{0}.py.asc".format(version)
