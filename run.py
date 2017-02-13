@@ -141,9 +141,9 @@ def create_new_release(version, skip_signing=False, force=False):
         assert r.status_code == 200
         j = r.json()
         for asset in j:
-            print("Deleting %s" % j['url'])
+            print("Deleting %s" % asset['url'])
             raw_input("enter to continue")
-            r = requests.delete(j['url'], params=params)
+            r = requests.delete(asset['url'], params=params)
             assert r.status_code == 204
             print("Deleted")
 
