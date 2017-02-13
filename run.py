@@ -99,7 +99,7 @@ def update_latest_version(tag_name):
     _delete_all_assets(release_id)
     _upload_asset(upload_url, "version", "text/plain", tag_name)
 
-def create_new_release(version, skip_signing=False, skip_update_latest_version=False):
+def create_new_release(version, skip_signing=False, skip_update=False):
     params = {
         "access_token": GITHUB_TOKEN
     }
@@ -113,13 +113,17 @@ def create_new_release(version, skip_signing=False, skip_update_latest_version=F
         "draft": False,
         "prerelease": False
     }
-    r = requests.post(GH_BASE_URL + "/releases",
-                      params=params, json=data)
-    try:
-        assert r.status_code == 201
-    except:
-        print r.text
-        return
+    if skip_update is False:
+        r = requests.post(GH_BASE_URL + "/releases",
+                params=params, json=data)
+        try:
+            assert r.status_code == 201
+        except:
+            print r.text
+            return
+    else:
+        r = requests.post(GH_BASE_URL + "/releases/tags/" + str(version),
+                params=params, json=data)
     j = r.json()
     upload_url = j["upload_url"].replace("{?name,label}", "")
     update_file = "updater/versions/update-{0}.py".format(version)
@@ -139,7 +143,7 @@ def create_new_release(version, skip_signing=False, skip_update_latest_version=F
                     content_type=content_type,
                     data=data)
 
-    if skip_update_latest_version is False:
+    if skip_update is False:
         update_latest_version(str(version))
 
 def get_next_version():
@@ -179,7 +183,7 @@ def update(args, version=None, force=False):
         print("Creating a new release with version {0}".format(version))
         create_new_release(str(version),
                            skip_signing=args.skip_signing,
-                           skip_update_latest_version=force)
+                           skip_update=force)
 
 def rewrite(args):
     next_version = get_next_version()
