@@ -100,7 +100,7 @@ def update_latest_version(tag_name):
     _delete_all_assets(release_id)
     _upload_asset(upload_url, "version", "text/plain", tag_name)
 
-def create_new_release(version, skip_signing=False, skip_update=False):
+def create_new_release(version, skip_signing=False, force=False):
     params = {
         "access_token": GITHUB_TOKEN
     }
@@ -114,7 +114,7 @@ def create_new_release(version, skip_signing=False, skip_update=False):
         "draft": False,
         "prerelease": False
     }
-    if skip_update is False:
+    if force is False:
         print("Creating a new release with version {0}".format(version))
         r = requests.post(GH_BASE_URL + "/releases",
                 params=params, json=data)
@@ -135,6 +135,18 @@ def create_new_release(version, skip_signing=False, skip_update=False):
     update_file_sig = "updater/versions/update-{0}.py.asc".format(version)
     content_type = "text/plain"
 
+    if force is True:
+        r = requests.get(GH_BASE_URL + "/releases/%s/assets" % j["id"],
+                         params=params)
+        assert r.status_code == 200
+        j = r.json()
+        for asset in j:
+            print("Deleting %s" % j['url'])
+            raw_input("enter to continue")
+            r = requests.delete(j['url'], params=params)
+            assert r.status_code == 204
+            print("Deleted")
+
     data = open(update_file, "r").read()
     _upload_asset(upload_url,
                   name="update.py",
@@ -148,7 +160,7 @@ def create_new_release(version, skip_signing=False, skip_update=False):
                     content_type=content_type,
                     data=data)
 
-    if skip_update is False:
+    if force is False:
         update_latest_version(str(version))
 
 def get_next_version():
@@ -187,7 +199,7 @@ def update(args, version=None, force=False):
         repo.git.push("-u", "origin", "master")
         create_new_release(str(version),
                            skip_signing=args.skip_signing,
-                           skip_update=force)
+                           force=force)
 
 def rewrite(args):
     next_version = get_next_version()
