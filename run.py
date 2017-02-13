@@ -173,7 +173,7 @@ def update(args, version=None, force=False):
         commit_message = "Automatic update to version {0}".format(version)
         if force is True:
             commit_message = "Rewriting version {0}".format(version)
-        repo.git.commit("-a", m=commit_message))
+        repo.git.commit("-a", m=commit_message)
         print("Pushing changes to remote")
         repo.git.push("-u", "origin", "master")
         print("Creating a new release with version {0}".format(version))
