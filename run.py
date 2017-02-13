@@ -139,7 +139,7 @@ def create_new_release(version, skip_signing=False, skip_update_latest_version=F
                     content_type=content_type,
                     data=data)
 
-    if skip_update_latest_version is True:
+    if skip_update_latest_version is False:
         update_latest_version(str(version))
 
 def get_next_version():
@@ -196,7 +196,6 @@ def parse_args():
                                action='store_true',
                                help="Skip signing the version file (to be used for development)")
     parser_update.set_defaults(func=update)
-
     parser_rewrite = subparsers.add_parser("rewrite", help="rewrite all the updates")
     parser_rewrite.add_argument('--skip-signing',
                                action='store_true',
