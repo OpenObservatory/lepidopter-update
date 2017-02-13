@@ -124,7 +124,7 @@ def create_new_release(version, skip_signing=False, skip_update=False):
     else:
         r = requests.post(GH_BASE_URL + "/releases/tags/" + str(version),
                 params=params, json=data)
-        print(j)
+        print(r.json())
         assert r.status_code == 200
 
     j = r.json()
