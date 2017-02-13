@@ -166,7 +166,7 @@ def update(args, version=None, force=False):
     update_file = os.path.join(CWD, "updater", "versions", "update-{0}.py".format(version))
 
     if not os.path.exists(update_file):
-        print("Update file does not exist. Will not update.")
+        print("Update file (%s) does not exist. Will not update." % update_file)
         return
 
     if args.skip_signing is not True:
