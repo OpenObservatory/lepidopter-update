@@ -58,6 +58,13 @@ def _perform_update():
             enabled_path
         )
 
+    # Fix pip bug introduced in setuptools v34.0.0
+    # http://setuptools.readthedocs.io/en/latest/history.html#v34-0-0
+    check_call(["apt-get", "-y", "install", "-t", "stretch", "python-pip"])
+    # Remove previously installed python packages
+    check_call(["apt-get", "-y", "autoremove"])
+    check_call(["pip", "install", "--upgrade", "setuptools"])
+
     check_call(["pip", "install", "--upgrade", OONIPROBE_PIP_URL])
 
 def run():
