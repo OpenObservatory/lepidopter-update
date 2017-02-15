@@ -280,7 +280,11 @@ def _perform_update():
         pass
 
     check_call(["systemctl", "enable", "ooniprobe"])
-    check_call(["systemctl", "start", "ooniprobe"])
+    try:
+        check_call(["systemctl", "start", "ooniprobe"])
+    except Exception as exc:
+        logging.error("Failed to start ooniprobe agent")
+        logging.exception(exc)
 
 def run():
     try:

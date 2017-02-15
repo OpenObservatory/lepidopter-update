@@ -63,6 +63,7 @@ def _upload_asset(upload_url, name, content_type, data):
                       headers=headers,
                       data=data)
     if r.status_code != 201:
+        print(r.json())
         raise Exception("Could not upload asset")
     return r.json()
 
@@ -99,7 +100,7 @@ def update_latest_version(tag_name):
     _delete_all_assets(release_id)
     _upload_asset(upload_url, "version", "text/plain", tag_name)
 
-def create_new_release(version, skip_signing=False):
+def create_new_release(version, skip_signing=False, force=False):
     params = {
         "access_token": GITHUB_TOKEN
     }
@@ -113,18 +114,35 @@ def create_new_release(version, skip_signing=False):
         "draft": False,
         "prerelease": False
     }
-    r = requests.post(GH_BASE_URL + "/releases",
-                      params=params, json=data)
-    try:
-        assert r.status_code == 201
-    except:
-        print r.text
-        return
+    if force is False:
+        print("Creating a new release with version {0}".format(version))
+        r = requests.post(GH_BASE_URL + "/releases",
+                params=params, json=data)
+        try:
+            assert r.status_code == 201
+        except:
+            print r.text
+            return
+    else:
+        r = requests.get(GH_BASE_URL + "/releases/tags/" + str(version),
+                         params=params)
+        assert r.status_code == 200
+
     j = r.json()
     upload_url = j["upload_url"].replace("{?name,label}", "")
     update_file = "updater/versions/update-{0}.py".format(version)
     update_file_sig = "updater/versions/update-{0}.py.asc".format(version)
     content_type = "text/plain"
+
+    if force is True:
+        r = requests.get(GH_BASE_URL + "/releases/%s/assets" % j["id"],
+                         params=params)
+        assert r.status_code == 200
+        j = r.json()
+        for asset in j:
+            print("Deleting %s" % asset['url'])
+            r = requests.delete(asset['url'], params=params)
+            assert r.status_code == 204
 
     data = open(update_file, "r").read()
     _upload_asset(upload_url,
@@ -139,7 +157,8 @@ def create_new_release(version, skip_signing=False):
                     content_type=content_type,
                     data=data)
 
-    update_latest_version(str(version))
+    if force is False:
+        update_latest_version(str(version))
 
 def get_next_version():
     with open(os.path.join(CWD, "updater", "latest_version")) as in_file:
@@ -149,29 +168,41 @@ def write_version(version):
     with open(os.path.join(CWD, "updater", "latest_version"), "w") as out_file:
         out_file.write(str(version))
 
-def update(args):
-    version = get_next_version()
+def update(args, version=None, force=False):
+    if version is None:
+        version = get_next_version()
     print("Updating the repo")
 
     update_file = os.path.join(CWD, "updater", "versions", "update-{0}.py".format(version))
 
     if not os.path.exists(update_file):
-        print("Update file does not exist. Will not update.")
+        print("Update file (%s) does not exist. Will not update." % update_file)
         return
 
     if args.skip_signing is not True:
         call(["gpg", "--batch", "-u", GPG_KEY_ID, "-a", "-b", update_file])
 
-    write_version(version)
+    if force is False:
+        write_version(version)
     repo = git.Repo(CWD)
     repo.git.add("updater/versions/")
     repo.git.add("updater/latest_version")
     if repo.is_dirty():
-        repo.git.commit("-a", m="Automatic update to version {0}".format(version))
+        commit_message = "Automatic update to version {0}".format(version)
+        if force is True:
+            commit_message = "Rewriting version {0}".format(version)
+        repo.git.commit("-a", m=commit_message)
         print("Pushing changes to remote")
         repo.git.push("-u", "origin", "master")
-        print("Creating a new release with version {0}".format(version))
-        create_new_release(str(version), args.skip_signing)
+        create_new_release(str(version),
+                           skip_signing=args.skip_signing,
+                           force=force)
+
+def rewrite(args):
+    next_version = get_next_version()
+    for version in range(1, next_version):
+        print("Force updating {0}".format(version))
+        update(args, version=version, force=True)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Handle the workflow for lepidopter updater")
@@ -182,6 +213,11 @@ def parse_args():
                                action='store_true',
                                help="Skip signing the version file (to be used for development)")
     parser_update.set_defaults(func=update)
+    parser_rewrite = subparsers.add_parser("rewrite", help="rewrite all the updates")
+    parser_rewrite.add_argument('--skip-signing',
+                               action='store_true',
+                               help="Skip signing the version file (to be used for development)")
+    parser_rewrite.set_defaults(func=rewrite)
 
     args = parser.parse_args()
     args.func(args)
