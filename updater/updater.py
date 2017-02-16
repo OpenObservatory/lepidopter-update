@@ -33,7 +33,7 @@ import argparse
 from subprocess import check_output, check_call, CalledProcessError
 
 # The version number of the updater
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 # UPDATE_BASE_URL/latest/version must return an integer containing the latest version number
