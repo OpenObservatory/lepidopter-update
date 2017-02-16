@@ -272,6 +272,13 @@ def _perform_update():
 
     shutil.copyfile("/usr/share/zoneinfo/UTC", "/etc/localtime")
 
+    # Fix pip bug introduced in setuptools v34.0.0
+    # http://setuptools.readthedocs.io/en/latest/history.html#v34-0-0
+    check_call(["apt-get", "-y", "install", "-t", "stretch", "python-pip"])
+    # Remove previously installed python packages
+    check_call(["apt-get", "-y", "autoremove"])
+    check_call(["pip", "install", "setuptools==34.2.0"])
+
     check_call(["pip", "install", "--upgrade", OONIPROBE_PIP_URL])
 
     # Set it as already initialized so we skip the informed consent on

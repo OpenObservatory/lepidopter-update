@@ -11,6 +11,14 @@ __version__ = "2"
 OONIPROBE_PIP_URL = "https://github.com/TheTorProject/ooni-probe/releases/download/v2.0.0-rc.3/ooniprobe-2.0.0rc3.tar.gz"
 
 def _perform_update():
+    # Fix pip bug introduced in setuptools v34.0.0
+    # http://setuptools.readthedocs.io/en/latest/history.html#v34-0-0
+    check_call(["apt-get", "-q", "update"])
+    check_call(["apt-get", "-y", "install", "-t", "stretch", "python-pip"])
+    # Remove previously installed python packages
+    check_call(["apt-get", "-y", "autoremove"])
+    check_call(["pip", "install", "setuptools==34.2.0"])
+
     check_call(["pip", "install", "--upgrade", OONIPROBE_PIP_URL])
 
 def run():
