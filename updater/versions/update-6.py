@@ -12,6 +12,7 @@ OONIPROBE_PIP_URL = "ooniprobe==2.1.0"
 def _perform_update():
     # Fix pip bug introduced in setuptools v34.0.0
     # http://setuptools.readthedocs.io/en/latest/history.html#v34-0-0
+    check_call(["apt-get", "-q", "update"])
     check_call(["apt-get", "-y", "install", "-t", "stretch", "python-pip"])
     # Remove previously installed python packages
     check_call(["apt-get", "-y", "autoremove"])
