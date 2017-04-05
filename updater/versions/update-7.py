@@ -1,5 +1,5 @@
 """
-This is the auto update script for going from version 5 to version 6.
+This is the auto update script for going from version 6 to version 7.
 """
 
 import logging
