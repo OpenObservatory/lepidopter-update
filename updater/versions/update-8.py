@@ -119,16 +119,27 @@ dtparam=pwr_led_trigger=heartbeat
 # Enable the hardware random number generator (RNG)
 dtparam=random=on
 """
-
-LEPIDOPTER_VERSION = """
-v1.0.0
-"""
-
 WATCHDOG_CONF_PATH = "/etc/watchdog.conf"
 SUDOERS_CONF_PATH = "/etc/sudoers"
 MOTD_HEAD_PATH = "/etc/motd.head"
 BOOT_CONFIG_PATH = "/boot/config.txt"
 LEPIDOPTER_VERSION_PATH = "/etc/lepidopter_version"
+
+def write_watchdog_conf():
+    with open(WATCHDOG_CONF_PATH, "w") as out_file:
+        out_file.write(WATCHDOG_CONF)
+
+def write_sudoers_conf():
+    with open(SUDOERS_CONF_PATH, "w") as out_file:
+        out_file.write(SUDOERS_CONF)
+
+def write_motd_head():
+    with open(MOTD_HEAD_PATH, "w") as out_file:
+        out_file.write(MOTD_HEAD)
+
+def write_boot_config():
+    with open(BOOT_CONFIG_PATH, "w") as out_file:
+        out_file.write(BOOT_CONFIG)
 
 def _perform_update():
     check_call(["apt-get", "-q", "update"])
@@ -154,25 +165,17 @@ def _perform_update():
     # Fix active meek tor bridges
     check_call(["sed", "-i", "'s/az786092.vo.msecnd.net/meek.azureedge.net/'", "/etc/tor/torrc"])
 
-def write_watchdog_conf():
-    with open(WATCHDOG_CONF_PATH, "w") as out_file:
-        out_file.write(WATCHDOG_CONF)
+    write_watchdog_conf()
+    write_sudoers_conf()
+    write_motd_head()
+    write_boot_config()
 
-def write_sudoers_conf():
-    with open(SUDOERS_CONF_PATH, "w") as out_file:
-        out_file.write(SUDOERS_CONF)
-
-def write_motd_head():
-    with open(MOTD_HEAD_PATH, "w") as out_file:
-        out_file.write(MOTD_HEAD)
-
-def write_boot_config():
-    with open(BOOT_CONFIG_PATH, "w") as out_file:
-        out_file.write(BOOT_CONFIG)
-
-def write_lepidopter_version():
-    with open(LEPIDOPTER_VERSION_PATH, "w") as out_file:
-        out_file.write(LEPIDOPTER_VERSION)
+def run():
+    try:
+        _perform_update()
+    except Exception as exc:
+        logging.exception(exc)
+        raise
 
 if __name__ == "__main__":
     run()
