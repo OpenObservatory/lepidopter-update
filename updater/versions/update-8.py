@@ -8,6 +8,7 @@ from subprocess import check_call
 
 __version__ = "8"
 
+TXTORCON_PIP_URL = "txtorcon==0.19.1"
 WATCHDOG_CONF = """
 #ping			= 172.31.14.1
 #ping			= 172.26.1.255
@@ -123,7 +124,6 @@ WATCHDOG_CONF_PATH = "/etc/watchdog.conf"
 SUDOERS_CONF_PATH = "/etc/sudoers"
 MOTD_HEAD_PATH = "/etc/motd.head"
 BOOT_CONFIG_PATH = "/boot/config.txt"
-LEPIDOPTER_VERSION_PATH = "/etc/lepidopter_version"
 
 def write_watchdog_conf():
     with open(WATCHDOG_CONF_PATH, "w") as out_file:
@@ -165,6 +165,9 @@ def _perform_update():
     # Fix active meek tor bridges
     check_call(["sed", "-i", "'s/az786092.vo.msecnd.net/meek.azureedge.net/'", "/etc/tor/torrc"])
 
+    # txtorcon bug in 0.19.0 - https://github.com/meejah/txtorcon/issues/227
+    check_call(["pip", "install", TXTORCON_PIP_URL])
+
     write_watchdog_conf()
     write_sudoers_conf()
     write_motd_head()
@@ -172,10 +175,21 @@ def _perform_update():
 
 def run():
     try:
+        check_call(["systemctl", "stop", "ooniprobe"])
+    except Exception as exc:
+        logging.error("Failed to stop ooniprobe-agent")
+        logging.exception(exc)
+    try:
         _perform_update()
     except Exception as exc:
         logging.exception(exc)
         raise
+    finally:
+        try:
+            check_call(["systemctl", "start", "ooniprobe"])
+        except Exception as exc:
+            logging.error("Failed to start ooniprobe-agent")
+            logging.exception(exc)
 
 if __name__ == "__main__":
     run()
