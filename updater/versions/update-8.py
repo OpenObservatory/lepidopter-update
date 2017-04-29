@@ -8,7 +8,7 @@ from subprocess import check_call
 
 __version__ = "8"
 
-TXTORCON_PIP_URL = "txtorcon==0.19.1"
+TXTORCON_PIP_URL = "txtorcon==0.18.0"
 WATCHDOG_CONF = """
 #ping			= 172.31.14.1
 #ping			= 172.26.1.255
