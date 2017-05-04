@@ -145,6 +145,9 @@ def _perform_update():
     check_call(["apt-get", "-q", "update"])
     # Install OpenVPN package without starting the OpenVPN service
     check_call(["apt-get", "-y", "install", "openvpn"], env={"RUNLEVEL": "1"})
+    # Disable OpenVPN systemd unit
+    check_call(["systemctl", "disable", "openvpn"])
+
     # Install newest e2fsprogs due to incompatibly with ext4 file system checks
     check_call(["apt-get", "-y", "install", "-t", "jessie-backports", "e2fsprogs"])
     # Install obfs4proxy (includes a lite version of meek)
@@ -155,9 +158,6 @@ def _perform_update():
     # Remove bcm2708_rng entry as modules are now handled by /boot/config.txt
     check_call(["cp", "-b", "/etc/modules", "/etc/modules.bak"])
     check_call(["sed", "-i",  "'/bcm2708_rng/d'", "/etc/modules"])
-
-    # Disable OpenVPN systemd unit
-    check_call(["systemctl", "disable", "openvpn"])
 
     # Mount option noatime disables file access writes every time a file is read
     check_call(["sed", "-i", "'s/\/ ext4/\/ ext4 defaults,noatime/'", "/etc/fstab"])
