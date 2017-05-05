@@ -144,7 +144,9 @@ def write_boot_config():
 def _perform_update():
     check_call(["apt-get", "-q", "update"])
     # Install OpenVPN package without starting the OpenVPN service
-    check_call(["apt-get", "-y", "install", "openvpn"], env={"RUNLEVEL": "1"})
+    check_call(["apt-get", "-y", "install", "openvpn"])
+    # Deactivate OpenVPN systemd unit
+    check_call(["systemctl", "stop", "openvpn"])
     # Disable OpenVPN systemd unit
     check_call(["systemctl", "disable", "openvpn"])
 
