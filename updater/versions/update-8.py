@@ -159,13 +159,13 @@ def _perform_update():
 
     # Remove bcm2708_rng entry as modules are now handled by /boot/config.txt
     check_call(["cp", "-b", "/etc/modules", "/etc/modules.bak"])
-    check_call(["sed", "-i",  "'/bcm2708_rng/d'", "/etc/modules"])
+    check_call(["sed", "-i", '/bcm2708_rng/d', "/etc/modules"])
 
     # Mount option noatime disables file access writes every time a file is read
-    check_call(["sed", "-i", "'s/\/ ext4/\/ ext4 defaults,noatime/'", "/etc/fstab"])
+    check_call(["sed", "-i", 's/\/ ext4/\/ ext4 defaults,noatime/', "/etc/fstab"])
 
     # Fix active meek tor bridges
-    check_call(["sed", "-i", "'s/az786092.vo.msecnd.net/meek.azureedge.net/'", "/etc/tor/torrc"])
+    check_call(["sed", "-i", 's/az786092.vo.msecnd.net/meek.azureedge.net/', "/etc/tor/torrc"])
 
     # txtorcon bug in 0.19.0 - https://github.com/meejah/txtorcon/issues/227
     check_call(["pip", "install", TXTORCON_PIP_URL])
