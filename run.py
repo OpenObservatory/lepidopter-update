@@ -198,7 +198,7 @@ def update(args, version=None, force=False):
                            skip_signing=args.skip_signing,
                            force=force)
 
-def rewrite(args):
+def rewrite(args, **kw):
     next_version = get_next_version()
     for version in range(1, next_version):
         print("Force updating {0}".format(version))
@@ -212,6 +212,9 @@ def parse_args():
     parser_update.add_argument('--skip-signing',
                                action='store_true',
                                help="Skip signing the version file (to be used for development)")
+    parser_update.add_argument('--force',
+                               action='store_true',
+                               help="Force updating of the version")
     parser_update.set_defaults(func=update)
     parser_rewrite = subparsers.add_parser("rewrite", help="rewrite all the updates")
     parser_rewrite.add_argument('--skip-signing',
@@ -220,7 +223,7 @@ def parse_args():
     parser_rewrite.set_defaults(func=rewrite)
 
     args = parser.parse_args()
-    args.func(args)
+    args.func(args, force=args.force)
 
 def main():
     parse_args()
