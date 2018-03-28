@@ -16,3 +16,15 @@ update.
 
 **Note**: The version file must not be terminated by a newline.
 
+## Sign updates
+
+In order to sign lepidopter update you need to:
+
+0. Generate a [Github token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
+1. Write your Github token to a file named `GITHUB_TOKEN`
+2. Run (see [dependencies](#dependencies)): `python run.py update`
+
+### Dependencies
+
+You can install `run.py` dependencies with:
+`pip install pythongit requests`
