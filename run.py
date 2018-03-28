@@ -171,7 +171,7 @@ def write_version(version):
 def update(args, version=None, force=False):
     if version is None:
         version = get_next_version()
-    print("Updating the repo")
+    print("Updating the repo to %s" % version)
 
     update_file = os.path.join(CWD, "updater", "versions", "update-{0}.py".format(version))
 
